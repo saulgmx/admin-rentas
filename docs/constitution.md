@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.5.0 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.10.0 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -29,23 +29,26 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 
 ### I. La especificación va primero
 
-1. Ninguna funcionalidad se implementa sin una especificación aprobada que incluya **criterios de aceptación** en formato *Dado / Cuando / Entonces*.
-2. El flujo es: **Especificación → Plan → Tareas → Implementación**. La especificación describe *qué* y *por qué*; el plan describe *cómo*.
-3. Las especificaciones están en el repositorio, versionadas junto al código, y se actualizan cuando cambia el comportamiento. Una especificación desactualizada es un defecto.
+1. Ninguna funcionalidad se implementa sin una especificación aprobada que incluya **criterios de aceptación** como escenarios *Dado / Cuando / Entonces* (GIVEN / WHEN / THEN en OpenSpec).
+2. El flujo es: **Especificación → Plan → Tareas → Implementación → Verificación → Archivo**, con controles de calidad entre pasos. La especificación describe *qué* y *por qué*; el plan describe *cómo*. El detalle está en [`proceso/flujo-especificaciones.md`](proceso/flujo-especificaciones.md).
+3. Las especificaciones están en el repositorio, versionadas junto al código, y se actualizan cuando cambia el comportamiento. Una especificación desactualizada es un defecto. Cada módulo tiene una **spec viva** que describe su estado actual (`openspec/specs/<módulo>/`), y cada cambio se propone y se archiva por separado (`openspec/changes/`).
 4. Cada especificación declara **qué módulos toca** y **qué contratos agrega o modifica**.
+5. **Si la spec no define algo, se propone y se pregunta; no se decide en el código.** Lo que falta por decidir se marca como `[POR DEFINIR]`, y ese marcador bloquea el paso a la siguiente etapa.
+6. Cada requisito y cada escenario tienen un **ID estable** con el prefijo de su módulo (por ejemplo `UTL-R01` y `UTL-R01-S1`). El ID no cambia aunque cambie la redacción.
 
 ### II. Monolito modular con límites estrictos
 
 1. La aplicación es **un solo desplegable** compuesto por módulos con límites explícitos.
-2. Módulos iniciales: `Identidad`, `Propiedades`, `Ingesta`, `Servicios`, `Ocupación`, `Notificaciones`. Módulos previstos: `Liquidaciones`, `Mantenimiento` y `Archivos`. El detalle de cada módulo está en [`arquitectura/mapa-modulos.md`](arquitectura/mapa-modulos.md).
+2. Módulos iniciales: Identidad (`Identity`), Propiedades (`Properties`), Ingesta (`Ingestion`), Servicios (`Utilities`), Ocupación (`Occupancy`) y Notificaciones (`Notifications`). Módulos previstos: Liquidaciones (`Settlements`), Mantenimiento (`Maintenance`) y Archivos (`Files`). El detalle de cada módulo está en [`arquitectura/mapa-modulos.md`](arquitectura/mapa-modulos.md).
 3. **Cada módulo es dueño de sus datos:** tiene su propio esquema en la base de datos. Ningún módulo lee ni escribe en el esquema de otro, y no hay *joins* ni llaves foráneas entre esquemas. Las referencias entre módulos se guardan como identificadores.
 4. **Comunicación entre módulos solo por:**
    - su **API pública** (interfaces o fachadas expuestas explícitamente), o
    - **eventos de integración** publicados en un bus interno del proceso.
 5. Los detalles internos de un módulo (entidades, repositorios, tablas) **no se exponen**. Si otro módulo los necesita, se agrega un contrato.
-6. El **núcleo compartido** (*shared kernel*) es mínimo y solo contiene tipos de valor sin lógica de negocio: `Dinero`, `Periodo`, identificadores tipados y `Resultado/Error`. Agregar algo al núcleo requiere un ADR.
-7. Los límites se **verifican automáticamente** con pruebas de arquitectura en CI. Si se rompe un límite, el build falla.
-8. Un módulo debe poder extraerse como servicio independiente en el futuro sin reescribir su dominio. No es un objetivo, pero sí una prueba de que los límites son correctos.
+6. **Los contratos cambian antes que el código:** un cambio que agrega o modifica contratos actualiza primero el proyecto `.Contracts` y el mapa de módulos, y después la implementación.
+7. El **núcleo compartido** (*shared kernel*) es mínimo y solo contiene tipos de valor sin lógica de negocio: `Dinero`, `Periodo`, identificadores tipados y `Resultado/Error`. Agregar algo al núcleo requiere un ADR.
+8. Los límites se **verifican automáticamente** con pruebas de arquitectura en CI. Si se rompe un límite, el build falla.
+9. Un módulo debe poder extraerse como servicio independiente en el futuro sin reescribir su dominio. No es un objetivo, pero sí una prueba de que los límites son correctos.
 
 ### III. Simplicidad para el administrador
 
@@ -95,8 +98,12 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
    - pruebas unitarias del dominio, sin infraestructura;
    - pruebas de integración del módulo, con base de datos real en contenedor;
    - pruebas de aceptación por funcionalidad, a través de la API pública.
-3. **Pruebas de arquitectura** en CI, que validan los límites entre módulos (Principio II.7).
+3. **Pruebas de arquitectura** en CI, que validan los límites entre módulos (Principio II.8).
 4. El código nuevo no se integra a la rama principal si las pruebas fallan.
+5. **Pruebas primero** para todo comportamiento con ID: la prueba se escribe y se ve fallar antes de implementar. Las excepciones se declaran en `tasks.md` con su motivo.
+6. **Cada bug empieza con una prueba que lo reproduce.**
+7. **Trazabilidad:** el nombre de cada prueba cita el ID del escenario que verifica (por ejemplo `UTL_R01_S1_...`), para poder encontrar con `grep` qué prueba cubre qué regla.
+8. **Las pruebas deben poder fallar:** se verifica con pruebas de mutación (Stryker.NET y StrykerJS) sobre el código que cambia, al cerrar cada punto de control.
 
 ### VIII. Seguridad y privacidad
 
@@ -134,36 +141,43 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 | Base de datos | PostgreSQL, un esquema por módulo | ✅ Decidido |
 | Almacenamiento de archivos | Ninguno permanente en la primera versión; retención temporal de hasta 7 días en PostgreSQL | ✅ Decidido |
 | Notificaciones | Bot de Telegram y correo; WhatsApp solo con enlaces `wa.me` | ✅ Decidido |
-| Lenguaje y framework del backend | .NET, TypeScript (NestJS) o Python (FastAPI) | ⏳ Pendiente (ADR-001) |
-| Framework del frontend | Por definir | ⏳ Pendiente (ADR-002) |
-| Herramienta de especificaciones | OpenSpec o Spec Kit | ⏳ Pendiente (ADR-003) |
-| Bus de eventos interno | En el proceso; *outbox* si hace falta garantizar la entrega | ⏳ Pendiente (ADR-004) |
-| Proveedor de IA para extracción | Por definir, detrás de un puerto | ⏳ Pendiente (ADR-005) |
-| Hosting | VPS o contenedor administrado | ⏳ Pendiente (ADR-006) |
+| Lenguaje y framework del backend | .NET 10 (LTS) con ASP.NET Core ([ADR-0001](adr/0001-backend-dotnet.md)) | ✅ Decidido |
+| Framework del frontend | React + Vite + TypeScript, cliente generado desde OpenAPI ([ADR-0002](adr/0002-frontend-react-vite.md)) | ✅ Decidido |
+| Herramienta de especificaciones | OpenSpec con controles de calidad propios ([ADR-0003](adr/0003-especificaciones-openspec.md)) | ✅ Decidido |
+| Idioma del código | Inglés; documentos en español, con glosario oficial ([ADR-0004](adr/0004-idioma-del-codigo.md)) | ✅ Decidido |
+| Bus de eventos interno | En el proceso; *outbox* si hace falta garantizar la entrega | ⏳ Pendiente (ADR-0005) |
+| Proveedor de IA para extracción | Por definir, detrás de un puerto | ⏳ Pendiente (ADR-0006) |
+| Hosting | VPS o contenedor administrado | ⏳ Pendiente (ADR-0007) |
 
 ---
 
 ## Gobernanza
 
-1. Esta constitución **tiene prioridad** sobre cualquier especificación, plan o convención.
+1. **Jerarquía de documentos**, de mayor a menor autoridad: constitución > spec (viva o del cambio) > ADRs > diseño técnico (`design.md`) > código.
+   - Una **contradicción entre documentos es un bug de documentación**: se corrige en el documento de menor autoridad, no se resuelve en el código.
 2. Cada cambio a la constitución se hace mediante un **ADR** (*Architecture Decision Record*) en `docs/adr/`, que explica el contexto, la decisión y sus consecuencias.
+   - Un **ADR aceptado no se edita**: si la decisión cambia, se escribe un ADR nuevo que lo reemplaza, y del anterior solo se actualiza su estado ("Reemplazado por ADR-XXXX").
+   - Un ADR recibe su número **al crearse**, no antes.
 3. **Versionado semántico** de este documento:
    - **MAYOR:** se elimina o redefine un principio.
    - **MENOR:** se agrega un principio o se amplía uno existente.
    - **PARCHE:** aclaraciones y redacción.
-4. Cada plan de implementación incluye una sección **"Revisión de la constitución"** que confirma que cumple cada principio o justifica la excepción.
+4. Cada plan de implementación (`design.md`) incluye una sección **"Revisión de la constitución"** que confirma que cumple cada principio o justifica la excepción (control C3 del flujo de especificaciones).
 5. Revisión general de esta constitución al cerrar cada versión mayor de la app.
+6. **Retrospectiva** al cerrar cada hito, en `docs/retros/`, con hallazgos numerados y su estado (aplicado o pendiente).
 
 ---
 
 ## Glosario
 
-| Término | Significado |
-|---|---|
-| **Recibo** | Estado de cuenta de un servicio para un periodo (luz, agua, internet, gas, predial, condominio). |
-| **Domiciliado** | Recibo que se cobra automáticamente a una cuenta o tarjeta del dueño. |
-| **Estancia** | Periodo en que un inquilino ocupa la propiedad, ya sea vacacional o mensual. |
-| **Evento** | Acción del administrador que genera un cobro: check-in, limpieza, gestión, etc. |
-| **Gasto** | Pago que hace el administrador y que el dueño debe reembolsar. |
-| **Liquidación** | Saldo entre dueño y administrador: rentas cobradas, eventos, gastos y transferencias. |
-| **Por confirmar** | Estado de un dato extraído con IA que todavía no revisa una persona. |
+Términos principales del dominio. La traducción completa al código está en [`arquitectura/glosario.md`](arquitectura/glosario.md).
+
+| Término | Código | Significado |
+|---|---|---|
+| **Recibo** | `Bill` | Estado de cuenta de un servicio para un periodo (luz, agua, internet, gas, predial, condominio). |
+| **Domiciliado** | `AutoPay` | Recibo que se cobra automáticamente a una cuenta o tarjeta del dueño. |
+| **Estancia** | `Stay` | Periodo en que un inquilino ocupa la propiedad, ya sea vacacional o mensual. |
+| **Evento** | `ManagerFee` | Acción del administrador que genera un cobro: check-in, limpieza, gestión, etc. |
+| **Gasto** | `Expense` | Pago que hace el administrador y que el dueño debe reembolsar. |
+| **Liquidación** | `Settlement` | Saldo entre dueño y administrador: rentas cobradas, eventos, gastos y transferencias. |
+| **Por confirmar** | `PendingConfirmation` | Estado de un dato extraído con IA que todavía no revisa una persona. |

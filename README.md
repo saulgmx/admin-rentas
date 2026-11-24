@@ -12,11 +12,15 @@ Aplicación personal para mantener sincronizados al dueño y al administrador de
 
 | Ruta | Contenido |
 |---|---|
+| [`CLAUDE.md`](CLAUDE.md) | Instrucciones y forma de trabajo para el agente. |
+| [`docs/handoff.md`](docs/handoff.md) | Dónde quedamos y siguiente paso. |
 | [`docs/constitution.md`](docs/constitution.md) | Reglas que no se negocian en el proyecto. |
 | [`docs/arquitectura/mapa-modulos.md`](docs/arquitectura/mapa-modulos.md) | Módulos, datos, contratos y eventos. |
+| [`docs/arquitectura/glosario.md`](docs/arquitectura/glosario.md) | Traducción oficial español → inglés del código. |
 | [`docs/adr/`](docs/adr/) | Registros de decisiones de arquitectura (ADR). |
-| [`docs/specs/`](docs/specs/) | Especificaciones de funcionalidades. |
+| [`docs/proceso/flujo-especificaciones.md`](docs/proceso/flujo-especificaciones.md) | Flujo con OpenSpec y controles de calidad. |
+| `openspec/` | Specs vivas por módulo y cambios en curso (se crea con `openspec init`). |
 
 ## Estado
 
-🚧 En diseño. Constitución en borrador (v0.5.0).
+🚧 En diseño. Constitución en borrador (v0.10.0).
