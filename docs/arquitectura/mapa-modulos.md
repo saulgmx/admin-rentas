@@ -1,6 +1,6 @@
 # Mapa de módulos — Administrador de Rentas
 
-> **Versión:** 0.4.0 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.4.1 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento describe los módulos del monolito, qué datos tiene cada uno, qué expone y cómo se comunican. Debe cumplir el **Principio II** de la [constitución](../constitution.md). Los identificadores están en inglés ([ADR-0004](../adr/0004-idioma-del-codigo.md)); la traducción de cada concepto está en el [glosario](glosario.md).
 
@@ -256,7 +256,7 @@ sequenceDiagram
 | Tema | Dónde vive |
 |---|---|
 | **Núcleo compartido** (`SharedKernel`) | `Money`, `DateRange`, identificadores tipados, `Result` / `Error`. Sin lógica de negocio. |
-| **Bus de eventos** | `Infrastructure`, en el proceso. *Outbox* por módulo si se requiere entrega garantizada (ADR pendiente). |
+| **Bus de eventos** | `Infrastructure`, en el proceso, con Wolverine ([ADR-0005](../adr/0005-bus-de-eventos-wolverine.md)). Los módulos publican con `IEventPublisher` en la misma transacción que su cambio (*outbox*); la entrega es asíncrona por colas locales durables. Las tablas de mensajes viven en el esquema compartido `wolverine`. |
 | **Trabajos programados** | `Infrastructure`; cada módulo registra los suyos. |
 | **Auditoría** | `Infrastructure`: quién, cuándo y qué, en cada comando. |
 | **Autenticación** | La resuelve `Identity`; el host la aplica antes de llegar a cualquier módulo. |
@@ -270,3 +270,4 @@ sequenceDiagram
 3. `Identity` y `Properties` no dependen de ningún otro módulo.
 4. No hay dependencias circulares entre módulos, ni siquiera a través de contratos.
 5. `SharedKernel` no depende de ningún módulo.
+6. Ningún proyecto de módulo (implementación ni `.Contracts`) usa tipos del espacio de nombres `Wolverine`; solo `Infrastructure` y `Host` ([ADR-0005](../adr/0005-bus-de-eventos-wolverine.md)).

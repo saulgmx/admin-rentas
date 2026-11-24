@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.10.0 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.10.1 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -145,7 +145,7 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 | Framework del frontend | React + Vite + TypeScript, cliente generado desde OpenAPI ([ADR-0002](adr/0002-frontend-react-vite.md)) | ✅ Decidido |
 | Herramienta de especificaciones | OpenSpec con controles de calidad propios ([ADR-0003](adr/0003-especificaciones-openspec.md)) | ✅ Decidido |
 | Idioma del código | Inglés; documentos en español, con glosario oficial ([ADR-0004](adr/0004-idioma-del-codigo.md)) | ✅ Decidido |
-| Bus de eventos interno | En el proceso; *outbox* si hace falta garantizar la entrega | ⏳ Pendiente (ADR-0005) |
+| Bus de eventos interno | En el proceso con Wolverine; *outbox* e *inbox* durables en PostgreSQL ([ADR-0005](adr/0005-bus-de-eventos-wolverine.md)) | ✅ Decidido |
 | Proveedor de IA para extracción | Por definir, detrás de un puerto | ⏳ Pendiente (ADR-0006) |
 | Hosting | VPS o contenedor administrado | ⏳ Pendiente (ADR-0007) |
 
