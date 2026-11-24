@@ -1,6 +1,6 @@
 # ADR-0007: Hosting en un VPS con Docker Compose y Cloudflare Tunnel, y entorno local con Aspire
 
-- **Estado:** Aceptado. El nombre del subdominio (punto 10) fue reemplazado por [ADR-0009](0009-subdominio-fuera-del-repositorio.md).
+- **Estado:** Aceptado. El nombre del subdominio (punto 10) fue reemplazado por [ADR-0009](0009-subdominio-fuera-del-repositorio.md). El proveedor y el tamaño del servidor, la consola de emergencia, el firewall, la secuencia de despliegue, el costo y la latencia (puntos 1, 2, 4 en lo que toca al proveedor, 14, 15 y 21) fueron reemplazados por [ADR-0010](0010-servidor-en-digitalocean.md).
 - **Fecha:** 2026-11-23
 - **Principios relacionados:** VIII (seguridad y privacidad), IX (integraciones externas), X (operación simple y reproducible)
 

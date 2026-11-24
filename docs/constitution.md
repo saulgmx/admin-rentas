@@ -147,7 +147,7 @@ Mantener sincronizados al **dueño**, que vive en otra ciudad, y al **administra
 | Idioma del código | Inglés; documentos en español, con glosario oficial ([ADR-0004](adr/0004-idioma-del-codigo.md)) | ✅ Decidido |
 | Bus de eventos interno | En el proceso con Wolverine; *outbox* e *inbox* durables en PostgreSQL ([ADR-0005](adr/0005-bus-de-eventos-wolverine.md)) | ✅ Decidido |
 | Proveedor de IA para extracción | Claude (Haiku 5.5, con reintento en Sonnet 5.5) a través de `Microsoft.Extensions.AI`, detrás de `IDocumentExtractor` ([ADR-0006](adr/0006-proveedor-ia-extraccion.md)) | 📝 Propuesto |
-| Hosting | VPS de Hetzner con Docker Compose, acceso por Cloudflare Tunnel y administración por Tailscale; entorno local con Aspire ([ADR-0007](adr/0007-hosting-y-entorno-local.md)) | ✅ Decidido |
+| Hosting | VPS de DigitalOcean con Docker Compose, acceso por Cloudflare Tunnel y administración por Tailscale; entorno local con Aspire ([ADR-0007](adr/0007-hosting-y-entorno-local.md), [ADR-0010](adr/0010-servidor-en-digitalocean.md)) | ✅ Decidido |
 
 ---
 
