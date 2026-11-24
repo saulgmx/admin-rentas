@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Dependencias y builds
+node_modules/
+bin/
+obj/
+dist/
+target/
+__pycache__/
+.venv/
