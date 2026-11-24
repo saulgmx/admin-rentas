@@ -1,6 +1,6 @@
 # Flujo de especificaciones y controles de calidad
 
-> **Versión:** 0.2.0 · **Fecha:** 2026-11-23
+> **Versión:** 0.3.0 · **Fecha:** 2026-11-23
 >
 > Cómo se usa OpenSpec en este proyecto ([ADR-0003](../adr/0003-especificaciones-openspec.md)) y qué controles debe pasar cada cambio. Los controles son una versión ligera de los de Spec Kit (`clarify`, `checklist`, `analyze`, `converge`), con prácticas que funcionaron en un proyecto anterior (gym-app).
 
@@ -106,6 +106,7 @@ Un control que no pasa **regresa al paso anterior**: no se avanza con pendientes
 - [ ] Ningún principio queda vacío.
 - [ ] Toda **excepción** está justificada. Si la excepción es permanente, primero se modifica la constitución con un ADR.
 - [ ] Los contratos y eventos usan los nombres del glosario.
+- [ ] Dice **cómo se esconde lo incompleto** mientras el cambio está en `main`: interfaz al final o interruptor de funciones; si hay interruptor, cuál y cuándo se borra ([ADR-0008](../adr/0008-trunk-based-development.md)).
 
 ### C4. Consistencia *(equivalente ligero de `analyze`)*
 
@@ -116,7 +117,7 @@ Antes de implementar:
 - [ ] Cada escenario tiene una tarea de **prueba**, que va **antes** de la tarea que la pone en verde. Las excepciones a "pruebas primero" están declaradas con su motivo.
 - [ ] Si el cambio toca contratos, **la primera tarea** actualiza `.Contracts` y el mapa de módulos.
 - [ ] No hay tareas que no correspondan a ningún requisito.
-- [ ] Las tareas están agrupadas en **puntos de control** (ver abajo).
+- [ ] Las tareas están agrupadas en **puntos de control** (ver abajo), y cada uno cabe en una rama de uno o dos días.
 
 ### C5. Convergencia *(equivalente ligero de `converge`)*
 
@@ -134,6 +135,7 @@ Si aparecen huecos, se agregan como tareas nuevas en una sección **"Convergenci
 - [ ] C5 pasó.
 - [ ] Los deltas describen el comportamiento **final**, no el planeado originalmente.
 - [ ] El mapa de módulos, el glosario y los ADRs están actualizados, si aplica.
+- [ ] Los interruptores de funciones del cambio están borrados, o hay una tarea para borrarlos en el siguiente cambio.
 - [ ] El archivo (`/opsx:archive`) va **en el mismo PR** que cierra el cambio.
 
 ---
@@ -141,7 +143,13 @@ Si aparecen huecos, se agregan como tareas nuevas en una sección **"Convergenci
 ## Puntos de control, ramas y commits
 
 - Las tareas de `tasks.md` se agrupan en **puntos de control** de pocas tareas (orientativo: 3 a 6), cada uno con un resultado verificable.
-- **Una rama y un PR por punto de control.** Nombre de rama en inglés: `<change>/<checkpoint>`, por ejemplo `register-bill-manual/cp1-contracts`.
+- **Trunk-based development** ([ADR-0008](../adr/0008-trunk-based-development.md)): `main` es el tronco y siempre debe poder desplegarse.
+- **Una rama y un PR por punto de control.** Nombre de rama en inglés: `<change>/<checkpoint>`, por ejemplo `register-bill-manual/cp1-contracts`. **La rama vive uno o dos días como máximo**; si el punto de control no cabe, se divide.
+- **Todo entra a `main` por PR con la CI en verde y la rama al día con `main`.** `main` no acepta cambios directos.
+- **El PR se integra con *merge*** (commit de integración), nunca con *squash* ni *rebase*. Los commits locales se pueden rebasear antes de subirlos; **una rama ya subida no se rebasea ni se fuerza**: para ponerla al día se trae `main` con un *merge*.
+- **Migraciones en conflicto:** se borra la migración de la rama y se vuelve a generar después de traer `main`.
+- Los puntos de control de un mismo cambio van **en secuencia**: la rama del siguiente sale de `main` después de integrar el anterior.
+- **Lo incompleto no se ve:** por defecto, la interfaz es el último punto de control. Solo los cambios que modifican comportamiento ya visible llevan un interruptor de funciones (`Microsoft.FeatureManagement`), apagado en producción, con pruebas de ambos caminos, y se borra al cerrar el cambio.
 - **Un commit por tarea**, en inglés, con el ID cuando aplique: `test(utilities): UTL-R01-S1 bill with future due date`.
 - El commit de una **prueba en rojo se queda local** y se sube junto con el commit que la pone en verde, para que el CI del PR no esté en rojo.
 - **Tras cada prueba en verde,** se rompe el código a propósito para confirmar que falla la prueba correcta. Al cerrar el punto de control, las pruebas de mutación (Stryker) lo verifican de forma sistemática.
@@ -159,6 +167,8 @@ Se puede usar **solo si se cumplen todas** estas condiciones:
 - [ ] Toca un solo módulo.
 - [ ] Tiene como máximo 5 tareas.
 - [ ] No agrega pantallas nuevas (puede modificar una existente).
+
+Como la vía ligera no tiene `design.md`, `proposal.md` dice cómo se esconde lo incompleto si el cambio modifica una pantalla existente.
 
 En la vía ligera se aplican C2 y C5. Los IDs, las pruebas primero y el archivo en el mismo PR siguen siendo obligatorios.
 
