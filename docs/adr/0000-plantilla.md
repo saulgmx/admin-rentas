@@ -4,7 +4,7 @@
 - **Fecha:** AAAA-MM-DD
 - **Principios relacionados:** (de la constitución, por ejemplo II, V)
 
-> Un ADR aceptado **no se edita**. Si la decisión cambia, se escribe uno nuevo que lo reemplaza y aquí solo se actualiza el estado.
+> Un ADR aceptado **no se edita**. Si la decisión cambia, se escribe uno nuevo que lo reemplaza y aquí solo se actualiza el estado. Única excepción: quitar datos sensibles sin cambiar la decisión, anotándolo en *Ediciones por datos sensibles*.
 
 ## Contexto
 
@@ -43,3 +43,7 @@ Un ADR pasa de *Propuesto* a *Aceptado* solo si todas las casillas están marcad
 ## Decisiones derivadas
 
 ADRs o especificaciones que dependen de esta decisión.
+
+## Ediciones por datos sensibles
+
+Solo si se editó el ADR ya aceptado para quitar datos sensibles: fecha y qué se quitó, sin repetir el dato. Si no hubo ediciones, se omite esta sección.

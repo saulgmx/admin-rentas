@@ -1,6 +1,6 @@
 # admin-rentas — instrucciones para el agente
 
-App personal para que el dueño (a distancia) y el administrador (en la ciudad de la propiedad) estén sincronizados sobre un departamento en renta mixta: servicios, pagos, ocupación y mantenimiento. Monolito modular en .NET 10 + PWA en React, con desarrollo guiado por especificaciones (OpenSpec).
+App personal para que el dueño (a distancia) y el administrador (en la ciudad de la propiedad) estén sincronizados sobre un departamento en renta mixta en México: servicios, pagos, ocupación y mantenimiento. Monolito modular en .NET 10 + PWA en React, con desarrollo guiado por especificaciones (OpenSpec).
 
 ## Al empezar cada sesión
 
@@ -20,7 +20,8 @@ App personal para que el dueño (a distancia) y el administrador (en la ciudad d
 De mayor a menor: **constitución > spec > ADRs > `design.md` > código**.
 
 - Si dos documentos se contradicen, es un **bug de documentación**: avísame y se corrige en el documento de menor autoridad. No lo resuelvas en el código.
-- **Un ADR aceptado no se edita.** Si una decisión cambia, se escribe un ADR nuevo que lo reemplaza.
+- **Un ADR aceptado no se edita.** Si una decisión cambia, se escribe un ADR nuevo que lo reemplaza. Única excepción: quitar datos sensibles sin cambiar la decisión, anotándolo al final del ADR.
+- **Sin datos sensibles en el repositorio** (es público): ni ubicaciones de la propiedad o de las personas, ni el subdominio de producción, ni nombres de servidores o IPs, además de los secretos.
 
 ## Reglas que más se olvidan
 
@@ -28,7 +29,7 @@ De mayor a menor: **constitución > spec > ADRs > `design.md` > código**.
 - **Pruebas primero** para todo comportamiento con ID. El nombre de la prueba cita el ID del escenario (`UTL_R01_S1_...`). Cada bug empieza con una prueba que lo reproduce.
 - **Tras cada prueba en verde,** rompe el código a propósito para confirmar que falla la prueba correcta.
 - **Un commit por tarea**, en inglés. Un commit con una prueba en rojo se queda local hasta que la tarea la pone en verde.
-- **Dinero:** `decimal` / `numeric(12,2)`, nunca `double` ni `float`. **Fechas sin hora:** `DateOnly`, en la zona horaria de la propiedad , que es un dato de cada propiedad.
+- **Dinero:** `decimal` / `numeric(12,2)`, nunca `double` ni `float`. **Fechas sin hora:** `DateOnly`, en la zona horaria de la propiedad, que es un dato de cada propiedad (`Property.TimeZone`).
 - **Límites entre módulos:** una implementación solo referencia los proyectos `.Contracts` de otros módulos, nunca su implementación.
 - **No hagas commits ni push** si no te lo pido.
 

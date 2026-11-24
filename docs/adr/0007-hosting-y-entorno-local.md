@@ -1,6 +1,6 @@
 # ADR-0007: Hosting en un VPS con Docker Compose y Cloudflare Tunnel, y entorno local con Aspire
 
-- **Estado:** Aceptado
+- **Estado:** Aceptado. El nombre del subdominio (punto 10) fue reemplazado por [ADR-0009](0009-subdominio-fuera-del-repositorio.md).
 - **Fecha:** 2026-11-23
 - **Principios relacionados:** VIII (seguridad y privacidad), IX (integraciones externas), X (operación simple y reproducible)
 
@@ -57,7 +57,7 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 
 #### Acceso de los usuarios
 
-10. **Cloudflare Tunnel** en **`<subdominio>.saulgmx.com`**. El conector abre una conexión **de salida** hacia Cloudflare, así que el servidor no necesita ningún puerto abierto.
+10. **Cloudflare Tunnel** en un subdominio de `saulgmx.com` (su nombre lo define el [ADR-0009](0009-subdominio-fuera-del-repositorio.md)). El conector abre una conexión **de salida** hacia Cloudflare, así que el servidor no necesita ningún puerto abierto.
     - El registro del subdominio queda en nube naranja; los demás registros del dominio no cambian.
     - Cloudflare da el HTTPS con su certificado comodín, así que el subdominio no aparece en los registros públicos de transparencia de certificados.
     - El plan gratuito permite subidas de hasta 100 MB por petición, de sobra para el límite de 10 MB por documento (IV.3).
@@ -183,3 +183,7 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 - [x] **Acuerdo:** el dueño eligió cada punto en la sesión del 2026-11-23.
 - [x] **Documentación:** no hay `[POR DEFINIR]`.
 - [x] **Implementación y revisión:** se implementa al armar el esqueleto. Se revisa en la retrospectiva del primer hito (costos reales, uso de memoria y si los planes gratuitos siguen alcanzando), o antes si un proveedor cambia precios o condiciones.
+
+## Ediciones por datos sensibles
+
+- **2026-11-24:** se quitó el nombre del subdominio de producción (punto 10). La decisión no cambia; el nombre lo define el ADR-0009.

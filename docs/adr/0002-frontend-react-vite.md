@@ -24,7 +24,7 @@ El frontend es una **SPA en React con Vite y TypeScript**, instalable como PWA, 
 3. **Datos del servidor:** TanStack Query para caché, reintentos y estados de carga.
 4. **Captura de fotos:** `<input type="file" accept="image/*" capture="environment">`, que abre directamente la cámara trasera del celular.
    - Las fotos se **reducen y comprimen en el navegador** antes de subirlas, para cuidar los datos móviles del administrador y respetar el límite de 10 MB (Principio IV.3).
-5. **Formato regional:** español de México. Dinero con `Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' })` y fechas en la zona horaria de la propiedad , que es un dato de cada propiedad. El frontend **no hace cálculos de dinero**: solo muestra los montos que calcula el backend.
+5. **Formato regional:** español de México. Dinero con `Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' })` y fechas en la zona horaria de la propiedad, que es un dato de cada propiedad (constitución V.2). El frontend **no hace cálculos de dinero**: solo muestra los montos que calcula el backend.
 6. **Despliegue:** el build estático lo sirve el mismo `AdminRentas.Api` desde `wwwroot`. Así se mantiene **un solo desplegable** (Principio X.1) y no hay problemas de CORS.
 7. **Ubicación en el repositorio:** `src/Web/`.
 
@@ -59,3 +59,7 @@ El frontend es una **SPA en React con Vite y TypeScript**, instalable como PWA, 
 
 - **ADR-0007:** hosting. El frontend se sirve desde el contenedor del backend.
 - Esqueleto del proyecto: enrutador, componentes y formularios.
+
+## Ediciones por datos sensibles
+
+- **2026-11-24:** se quitó la zona horaria concreta de la propiedad. Ahora es un dato de cada propiedad (constitución V.2). La decisión no cambia.

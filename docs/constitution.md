@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.11.0 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.12.0 (borrador) · **Fecha:** 2026-11-24 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -8,7 +8,7 @@
 
 ## Propósito
 
-Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la ciudad de la propiedad) sobre el estado de un departamento en renta mixta (vacacional y mensual): servicios, pagos, ocupación, gastos y mantenimiento.
+Mantener sincronizados al **dueño**, que vive en otra ciudad, y al **administrador**, que está en la ciudad de la propiedad, sobre el estado de un departamento en renta mixta (vacacional y mensual) en México: servicios, pagos, ocupación, gastos y mantenimiento.
 
 ### Alcance
 
@@ -76,7 +76,7 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 ### V. Dinero, fechas y periodos sin ambigüedad
 
 1. **Dinero:** se representa como entero en centavos o como decimal exacto, **nunca como punto flotante**. Siempre va acompañado de la moneda (por defecto MXN).
-2. **Fechas y horas:** se guardan en UTC y se muestran en la zona horaria del usuario. La zona horaria de la propiedad es una zona horaria configurada y la del dueño una zona horaria configurada. Las fechas sin hora (vencimientos, inicio de estancia) se guardan como **fecha local de la propiedad**.
+2. **Fechas y horas:** se guardan en UTC y se muestran en la zona horaria del usuario. La zona horaria de la propiedad y la de cada usuario se guardan **como datos** (`Property.TimeZone` y `User.TimeZone`) y no se fijan en el código de producción ni en los documentos; las pruebas usan zonas de ejemplo. Las fechas sin hora (vencimientos, inicio de estancia) se guardan como **fecha local de la propiedad**.
 3. **Periodos:** son intervalos semiabiertos `[inicio, fin)`. Aplica a periodos de facturación, estancias y prorrateos.
 4. **Prorrateo:** el método se define **por estancia** al acordar la renta, y se aplica a todos sus recibos.
    - **Por días (predeterminado):** se reparte según los días naturales del periodo del recibo que se traslapan con la estancia.
@@ -157,6 +157,7 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
    - Una **contradicción entre documentos es un bug de documentación**: se corrige en el documento de menor autoridad, no se resuelve en el código.
 2. Cada cambio a la constitución se hace mediante un **ADR** (*Architecture Decision Record*) en `docs/adr/`, que explica el contexto, la decisión y sus consecuencias.
    - Un **ADR aceptado no se edita**: si la decisión cambia, se escribe un ADR nuevo que lo reemplaza, y del anterior solo se actualiza su estado ("Reemplazado por ADR-XXXX").
+   - **Única excepción:** un ADR aceptado se puede editar **solo para quitar datos sensibles** (ubicaciones, nombres, dominios o secretos), sin cambiar la decisión. La edición se anota al final del ADR, en *Ediciones por datos sensibles*, con la fecha y lo que se quitó, sin repetir el dato.
    - Un ADR recibe su número **al crearse**, no antes.
    - Un ADR se crea como **Propuesto** y solo pasa a **Aceptado** cuando no tiene ningún `[POR DEFINIR]` y cumple la lista *Listo para aceptar* de la plantilla (criterios ECADR: evidencia, alternativas, acuerdo, documentación y plan de implementación y revisión). Lo que no es una decisión de arquitectura (valores de configuración, comportamiento con escenarios) se mueve a su documento con un enlace, en lugar de quedar abierto en el ADR.
    - Mientras un ADR es **Propuesto** se puede editar libremente.

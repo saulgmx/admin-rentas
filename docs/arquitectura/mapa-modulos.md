@@ -1,6 +1,6 @@
 # Mapa de módulos — Administrador de Rentas
 
-> **Versión:** 0.4.3 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.4.4 (borrador) · **Fecha:** 2026-11-24 · **Estado:** En revisión
 >
 > Este documento describe los módulos del monolito, qué datos tiene cada uno, qué expone y cómo se comunican. Debe cumplir el **Principio II** de la [constitución](../constitution.md). Los identificadores están en inglés ([ADR-0004](../adr/0004-idioma-del-codigo.md)); la traducción de cada concepto está en el [glosario](glosario.md).
 
@@ -69,7 +69,7 @@ flowchart LR
 
 | | |
 |---|---|
-| **Datos** | `User` (nombre, correo, rol: `Owner` / `Manager`, chat de Telegram), `PropertyAssignment` (usuario ↔ propiedad) |
+| **Datos** | `User` (nombre, correo, rol: `Owner` / `Manager`, chat de Telegram, `TimeZone`), `PropertyAssignment` (usuario ↔ propiedad) |
 | **Comandos** | `InviteManager`, `AssignProperty`, `LinkTelegram` |
 | **Consultas** | `GetCurrentUser`, `CanAccess(user, property)`, `ListPropertyUsers(property, role?)` |
 | **Publica** | `ManagerAssigned` |
@@ -259,7 +259,7 @@ sequenceDiagram
 |---|---|
 | **Núcleo compartido** (`SharedKernel`) | `Money`, `DateRange`, identificadores tipados, `Result` / `Error`. Sin lógica de negocio. |
 | **Bus de eventos** | `Infrastructure`, en el proceso, con Wolverine ([ADR-0005](../adr/0005-bus-de-eventos-wolverine.md)). Los módulos publican con `IEventPublisher` en la misma transacción que su cambio (*outbox*); la entrega es asíncrona por colas locales durables. Las tablas de mensajes viven en el esquema compartido `wolverine`. |
-| **Trabajos programados** | Trabajos recurrentes de Wolverine, configurados en `Infrastructure` en la zona horaria de la propiedad ([ADR-0005](../adr/0005-bus-de-eventos-wolverine.md)). Cada módulo declara los suyos con una abstracción propia, sin tipos de Wolverine. Se diseñan **por estado**: buscan todo lo que falta hacer, porque una ejecución perdida no se recupera. |
+| **Trabajos programados** | Trabajos recurrentes de Wolverine, configurados en `Infrastructure` en la zona horaria de la propiedad ([ADR-0005](../adr/0005-bus-de-eventos-wolverine.md)). `[POR DEFINIR]`: la zona horaria es un dato de cada propiedad (constitución V.2), pero las expresiones *cron* se registran al arrancar; falta definir de dónde las toma `Infrastructure` si todavía no hay ninguna propiedad registrada, o si hay varias con zonas distintas. Cada módulo declara los suyos con una abstracción propia, sin tipos de Wolverine. Se diseñan **por estado**: buscan todo lo que falta hacer, porque una ejecución perdida no se recupera. |
 | **Auditoría** | `Infrastructure`: quién, cuándo y qué, en cada comando. |
 | **Autenticación** | La resuelve `Identity`; el host la aplica antes de llegar a cualquier módulo. |
 

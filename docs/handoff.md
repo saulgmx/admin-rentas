@@ -19,7 +19,7 @@ Fase de diseño terminada. No hay código todavía.
 - **Gobernanza:** un ADR nace *Propuesto* y solo se acepta sin `[POR DEFINIR]` y con la lista *Listo para aceptar* (ECADR) de la plantilla completa. Los ADR-0005 a 0008 se regresaron a *Propuesto*, se cerraron sus pendientes y se aceptaron, salvo el 0006.
 - **ADR-0005:** trabajos programados con los trabajos recurrentes de Wolverine, diseñados por estado; reintentos en dos fases para fallas transitorias y ninguno para las permanentes.
 - **ADR-0006:** Claude a través de `IChatClient`, con el adaptador en `AdminRentas.Ingestion.Adapters`. Las fotos se normalizan en la PWA y en el servidor, a 2,576 px en JPEG.
-- **ADR-0007:** Hetzner CX23 con Docker Compose, Cloudflare Tunnel en `<subdominio>.saulgmx.com` y Tailscale. Infraestructura con OpenTofu y Ansible. Despliegue por etiqueta desde GitHub Actions; respaldos cifrados en R2; Aspire en local.
+- **ADR-0007:** Hetzner CX23 con Docker Compose, Cloudflare Tunnel en un subdominio que no se escribe en el repositorio ([ADR-0009](adr/0009-subdominio-fuera-del-repositorio.md)) y Tailscale. Infraestructura con OpenTofu y Ansible. Despliegue por etiqueta desde GitHub Actions; respaldos cifrados en R2; Aspire en local.
 - **ADR-0008:** ramas de uno o dos días, integración con *merge* y sin rebasear ramas subidas; la interfaz va al final e interruptores solo para comportamiento visible.
 - **Bug resuelto:** el límite de documento es el de la constitución (10 MB); el ADR-0006 ya lo dice.
 

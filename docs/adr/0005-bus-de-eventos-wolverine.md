@@ -39,7 +39,7 @@ El bus de eventos en proceso se implementa con **[Wolverine](https://wolverine.n
    - La lista de excepciones de cada tipo se define al armar el esqueleto, con pruebas que verifican la clasificación.
 8. **Idempotencia:** el *inbox* de Wolverine evita procesar dos veces el mismo mensaje en el caso normal, pero **los consumidores siguen siendo idempotentes** por diseño, como exige el mapa de módulos. No se confía solo en el *inbox*.
 9. **Trabajos programados:** se usan los **trabajos recurrentes de Wolverine** (`opts.Schedules.ScheduleRecurring`, disponibles desde la versión 6.34).
-   - Las expresiones *cron* se calculan en la zona horaria de la propiedad , que es un dato de cada propiedad, con los cambios de horario resueltos por Wolverine (usa Cronos).
+   - Las expresiones *cron* se calculan en la zona horaria de la propiedad, que es un dato de cada propiedad (constitución V.2), con los cambios de horario resueltos por Wolverine (usa Cronos).
    - La siguiente ejecución de cada trabajo se guarda en PostgreSQL y sobrevive a reinicios; cada ejecución lleva un identificador "nombre + hora" que evita duplicados.
    - Los módulos **no** usan tipos de Wolverine para declararlos: declaran cada trabajo (nombre, expresión *cron* y mensaje) mediante una abstracción propia definida en `Infrastructure`, como `IEventPublisher`, e `Infrastructure` los registra en Wolverine. El mensaje lo atiende un *handler* simple del módulo.
    - **Trabajos diseñados por estado, no por evento.** Wolverine **no recupera las ejecuciones perdidas**: si el proceso está detenido a la hora programada, esa ejecución se salta. Por eso cada trabajo busca *todo lo que falta hacer* (por ejemplo, todos los recibos por vencer que aún no tienen aviso), no solo lo de ese día. Así, una ejecución perdida solo se atrasa hasta la siguiente. Junto con la idempotencia (Principio X.6), esto permite correr un trabajo más seguido si conviene.
@@ -92,3 +92,7 @@ El bus de eventos en proceso se implementa con **[Wolverine](https://wolverine.n
 - **Esqueleto:** `IEventPublisher`, configuración de Wolverine, prueba de arquitectura y prueba de integración del flujo publicar → consumir.
 - **Mapa de módulos:** actualizar la fila *Trabajos programados* de *Aspectos transversales* con los trabajos recurrentes de Wolverine.
 - **Glosario:** proponer el nombre de la abstracción para declarar trabajos programados antes de usarla.
+
+## Ediciones por datos sensibles
+
+- **2026-11-24:** se quitó la zona horaria concreta de la propiedad. Ahora es un dato de cada propiedad (constitución V.2). La decisión no cambia.
