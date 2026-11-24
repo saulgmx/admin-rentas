@@ -21,6 +21,7 @@ De mayor a menor: **constitución > spec > ADRs > `design.md` > código**.
 
 - Si dos documentos se contradicen, es un **bug de documentación**: avísame y se corrige en el documento de menor autoridad. No lo resuelvas en el código.
 - **Un ADR aceptado no se edita.** Si una decisión cambia, se escribe un ADR nuevo que lo reemplaza. Única excepción: quitar datos sensibles sin cambiar la decisión, anotándolo al final del ADR.
+- **Un ADR no se acepta con algo por confirmar:** la casilla *Evidencia* no se marca mientras falte verificar algo; si no se puede verificar sin implementar, el ADR dice qué se hace si falla.
 - **Sin datos sensibles en el repositorio** (es público): ni ubicaciones de la propiedad o de las personas, ni el subdominio de producción, ni nombres de servidores o IPs, además de los secretos.
 
 ## Reglas que más se olvidan

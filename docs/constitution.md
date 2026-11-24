@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.12.0 (borrador) · **Fecha:** 2026-11-24 · **Estado:** En revisión
+> **Versión:** 0.13.0 (borrador) · **Fecha:** 2026-11-24 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -159,7 +159,7 @@ Mantener sincronizados al **dueño**, que vive en otra ciudad, y al **administra
    - Un **ADR aceptado no se edita**: si la decisión cambia, se escribe un ADR nuevo que lo reemplaza, y del anterior solo se actualiza su estado ("Reemplazado por ADR-XXXX").
    - **Única excepción:** un ADR aceptado se puede editar **solo para quitar datos sensibles** (ubicaciones, nombres, dominios o secretos), sin cambiar la decisión. La edición se anota al final del ADR, en *Ediciones por datos sensibles*, con la fecha y lo que se quitó, sin repetir el dato.
    - Un ADR recibe su número **al crearse**, no antes.
-   - Un ADR se crea como **Propuesto** y solo pasa a **Aceptado** cuando no tiene ningún `[POR DEFINIR]` y cumple la lista *Listo para aceptar* de la plantilla (criterios ECADR: evidencia, alternativas, acuerdo, documentación y plan de implementación y revisión). Lo que no es una decisión de arquitectura (valores de configuración, comportamiento con escenarios) se mueve a su documento con un enlace, en lugar de quedar abierto en el ADR.
+   - Un ADR se crea como **Propuesto** y solo pasa a **Aceptado** cuando no tiene ningún `[POR DEFINIR]` y cumple la lista *Listo para aceptar* de la plantilla (criterios ECADR: evidencia, alternativas, acuerdo, documentación y plan de implementación y revisión). La **evidencia** no se da por cumplida mientras quede algo por confirmar; si algo no se puede confirmar sin implementar, el ADR dice qué se hace si falla. Lo que no es una decisión de arquitectura (valores de configuración, comportamiento con escenarios) se mueve a su documento con un enlace, en lugar de quedar abierto en el ADR.
    - Mientras un ADR es **Propuesto** se puede editar libremente.
 3. **Versionado semántico** de este documento:
    - **MAYOR:** se elimina o redefine un principio.

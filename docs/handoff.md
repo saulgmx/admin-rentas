@@ -8,7 +8,7 @@
 
 Fase de diseño. No hay código todavía.
 
-- **Documentos:** constitución v0.12.0, mapa de módulos v0.4.4, glosario v0.1.0 y flujo de especificaciones v0.4.0.
+- **Documentos:** constitución v0.13.0, mapa de módulos v0.4.4, glosario v0.1.0 y flujo de especificaciones v0.4.0.
 - **ADRs:** todos aceptados, salvo el 0006 (propuesto), que espera la prueba con recibos reales.
 - **Git:** todo en `main`. La historia publicada se reescribió el 2026-11-24 para quitar datos sensibles ([ADR-0009](adr/0009-subdominio-fuera-del-repositorio.md), punto 8): cualquier clon anterior se vuelve a clonar.
 
