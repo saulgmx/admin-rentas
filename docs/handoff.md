@@ -10,15 +10,11 @@ Fase de diseño. No hay código todavía.
 
 - **Documentos:** constitución v0.12.0, mapa de módulos v0.4.4, glosario v0.1.0 y flujo de especificaciones v0.4.0.
 - **ADRs:** todos aceptados, salvo el 0006 (propuesto), que espera la prueba con recibos reales.
-- **Git:** `main` va 3 commits adelante de `origin/main`, **sin push**. La historia se reescribe antes de publicarlos.
+- **Git:** todo en `main`. La historia publicada se reescribió el 2026-11-24 para quitar datos sensibles ([ADR-0009](adr/0009-subdominio-fuera-del-repositorio.md), punto 8): cualquier clon anterior se vuelve a clonar.
 
 ## Siguiente tarea
 
-**Cerrar la limpieza de seguridad del repositorio** antes del esqueleto:
-
-1. Reescribir la historia con `git filter-repo` ([ADR-0009](adr/0009-subdominio-fuera-del-repositorio.md), punto 8). Se hace sobre una copia, se verifica que no queden datos sensibles y se **confirma con el dueño antes del *force push***.
-
-**Después: armar el esqueleto.** Empieza con `openspec init` y la creación de su cambio en OpenSpec. Su `tasks.md` se arma con:
+**Armar el esqueleto**, con ramas cortas y PRs ([ADR-0008](adr/0008-trunk-based-development.md)). Empieza con `openspec init` y la creación de su cambio en OpenSpec. Su `tasks.md` se arma con:
 - las *Decisiones derivadas* de los ADRs;
 - la sección "Se decide al armar el esqueleto" del [ADR-0002](adr/0002-frontend-react-vite.md);
 - los `[POR DEFINIR]` de los documentos;
@@ -26,4 +22,4 @@ Fase de diseño. No hay código todavía.
 
 ## Prompt sugerido para el siguiente chat
 
-> Lee `CLAUDE.md` y `docs/handoff.md`. Cerremos la limpieza de seguridad del repositorio, una tarea a la vez.
+> Lee `CLAUDE.md` y `docs/handoff.md`. Empezamos a armar el esqueleto: propón las tareas y los puntos de control, y pregúntame antes de empezar.
