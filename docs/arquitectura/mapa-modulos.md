@@ -1,6 +1,6 @@
 # Mapa de módulos — Administrador de Rentas
 
-> **Versión:** 0.4.1 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.4.2 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento describe los módulos del monolito, qué datos tiene cada uno, qué expone y cómo se comunican. Debe cumplir el **Principio II** de la [constitución](../constitution.md). Los identificadores están en inglés ([ADR-0004](../adr/0004-idioma-del-codigo.md)); la traducción de cada concepto está en el [glosario](glosario.md).
 
@@ -15,6 +15,7 @@
   - Viven en el proyecto de **contratos** del módulo que los publica (`AdminRentas.<Module>.Contracts`).
   - Los consumidores deben ser **idempotentes**: recibir un evento dos veces no duplica nada.
 - **Datos:** cada módulo es dueño de un esquema en PostgreSQL con su nombre en minúsculas (`utilities`, `occupancy`, …).
+- **Adaptadores externos:** el módulo define sus puertos en su implementación, y los adaptadores que hablan con servicios externos (IA, Telegram, correo) viven en un proyecto aparte, `AdminRentas.<Module>.Adapters`, que solo referencia `Host` ([ADR-0006](../adr/0006-proveedor-ia-extraccion.md)).
 
 ---
 
@@ -103,6 +104,7 @@ flowchart LR
 - `ExtractionCompleted` lleva campos **genéricos de recibo** (proveedor, número de cuenta, periodo, consumo, monto, fecha límite, confianza). `Ingestion` **no conoce** el concepto de `Bill` de `Utilities`: solo extrae; la interpretación es de `Utilities`.
 - Si la huella ya existe, no se llama a la IA y se publica `DuplicateDocumentDetected`. Esto también evita pagar dos veces por la misma extracción.
 - El original se borra cuando `Utilities` llama a `ReleaseOriginal` (al confirmar o descartar el recibo) o cuando vence a los 7 días.
+- El adaptador de `IDocumentExtractor` usa Claude a través de `IChatClient` (`Microsoft.Extensions.AI`) y vive en `AdminRentas.Ingestion.Adapters` ([ADR-0006](../adr/0006-proveedor-ia-extraccion.md)).
 - `Ingestion` **no escucha eventos de `Utilities`**: es `Utilities` quien le avisa con un comando. Así la dependencia va en un solo sentido (`Utilities` → `Ingestion`) y no hay ciclo.
 
 ### 4. Utilities (Servicios)
@@ -271,3 +273,5 @@ sequenceDiagram
 4. No hay dependencias circulares entre módulos, ni siquiera a través de contratos.
 5. `SharedKernel` no depende de ningún módulo.
 6. Ningún proyecto de módulo (implementación ni `.Contracts`) usa tipos del espacio de nombres `Wolverine`; solo `Infrastructure` y `Host` ([ADR-0005](../adr/0005-bus-de-eventos-wolverine.md)).
+7. Solo `Host` referencia los proyectos `AdminRentas.<Module>.Adapters` ([ADR-0006](../adr/0006-proveedor-ia-extraccion.md)).
+8. Solo `AdminRentas.Ingestion.Adapters` y `Host` usan los espacios de nombres `Anthropic` y `Microsoft.Extensions.AI` ([ADR-0006](../adr/0006-proveedor-ia-extraccion.md)).

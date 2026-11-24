@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.10.2 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.10.3 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -146,7 +146,7 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 | Herramienta de especificaciones | OpenSpec con controles de calidad propios ([ADR-0003](adr/0003-especificaciones-openspec.md)) | ✅ Decidido |
 | Idioma del código | Inglés; documentos en español, con glosario oficial ([ADR-0004](adr/0004-idioma-del-codigo.md)) | ✅ Decidido |
 | Bus de eventos interno | En el proceso con Wolverine; *outbox* e *inbox* durables en PostgreSQL ([ADR-0005](adr/0005-bus-de-eventos-wolverine.md)) | ✅ Decidido |
-| Proveedor de IA para extracción | Por definir, detrás de un puerto | ⏳ Pendiente (ADR-0006) |
+| Proveedor de IA para extracción | Claude (Haiku 5.5, con reintento en Sonnet 5.5) a través de `Microsoft.Extensions.AI`, detrás de `IDocumentExtractor` ([ADR-0006](adr/0006-proveedor-ia-extraccion.md)) | ✅ Decidido |
 | Hosting | VPS o contenedor administrado | ⏳ Pendiente (ADR-0007) |
 
 ---
