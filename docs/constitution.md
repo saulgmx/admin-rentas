@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.10.1 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.10.2 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -46,7 +46,7 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
    - **eventos de integración** publicados en un bus interno del proceso.
 5. Los detalles internos de un módulo (entidades, repositorios, tablas) **no se exponen**. Si otro módulo los necesita, se agrega un contrato.
 6. **Los contratos cambian antes que el código:** un cambio que agrega o modifica contratos actualiza primero el proyecto `.Contracts` y el mapa de módulos, y después la implementación.
-7. El **núcleo compartido** (*shared kernel*) es mínimo y solo contiene tipos de valor sin lógica de negocio: `Dinero`, `Periodo`, identificadores tipados y `Resultado/Error`. Agregar algo al núcleo requiere un ADR.
+7. El **núcleo compartido** (*shared kernel*) es mínimo y solo contiene tipos de valor sin lógica de negocio: dinero (`Money`), periodo (`DateRange`), identificadores tipados y resultado/error (`Result` / `Error`), con los nombres del [glosario](arquitectura/glosario.md). Agregar algo al núcleo requiere un ADR.
 8. Los límites se **verifican automáticamente** con pruebas de arquitectura en CI. Si se rompe un límite, el build falla.
 9. Un módulo debe poder extraerse como servicio independiente en el futuro sin reescribir su dominio. No es un objetivo, pero sí una prueba de que los límites son correctos.
 
