@@ -35,7 +35,7 @@ De mayor a menor: **constitución > spec > ADRs > `design.md` > código**.
 
 ## Al terminar cada sesión
 
-Actualiza `docs/handoff.md` con: estado actual, decisiones tomadas, siguiente paso, notas para retomar y un prompt sugerido para el siguiente chat.
+Actualiza `docs/handoff.md` con: estado actual, siguiente tarea (con enlaces a los documentos que necesita, sin copiar su contenido) y un prompt sugerido para el siguiente chat. Los pendientes no van en el handoff: van como `[POR DEFINIR]` en su documento.
 
 ## Documentos
 
@@ -46,5 +46,5 @@ Actualiza `docs/handoff.md` con: estado actual, decisiones tomadas, siguiente pa
 | `docs/arquitectura/mapa-modulos.md` | Módulos, contratos, eventos y reglas de dependencia. |
 | `docs/arquitectura/glosario.md` | Español → código. |
 | `docs/adr/` | Decisiones de arquitectura. |
-| `docs/handoff.md` | Dónde quedamos. |
+| `docs/handoff.md` | Estado y siguiente tarea. |
 | `openspec/` | Specs vivas y cambios en curso. |

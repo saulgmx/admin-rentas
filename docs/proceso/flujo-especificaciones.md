@@ -1,6 +1,6 @@
 # Flujo de especificaciones y controles de calidad
 
-> **Versión:** 0.3.0 · **Fecha:** 2026-11-23
+> **Versión:** 0.4.0 · **Fecha:** 2026-11-24
 >
 > Cómo se usa OpenSpec en este proyecto ([ADR-0003](../adr/0003-especificaciones-openspec.md)) y qué controles debe pasar cada cambio. Los controles son una versión ligera de los de Spec Kit (`clarify`, `checklist`, `analyze`, `converge`), con prácticas que funcionaron en un proyecto anterior (gym-app).
 
@@ -69,6 +69,8 @@ Un control que no pasa **regresa al paso anterior**: no se avanza con pendientes
 ---
 
 ## Los controles
+
+`[POR DEFINIR]`: al instalar OpenSpec, revisar en openspec.dev/docs si su configuración de proyecto y sus *schemas* permiten convertir los controles C1 a C6 en plantillas.
 
 ### C1. Spec clara *(equivalente ligero de `clarify`)*
 
@@ -177,6 +179,7 @@ En la vía ligera se aplican C2 y C5. Los IDs, las pruebas primero y el archivo 
 ## Continuidad entre sesiones
 
 - **Al empezar** una sesión, se lee `docs/handoff.md`.
-- **Al terminar**, se actualiza con: estado actual, decisiones tomadas, siguiente paso, notas para retomar y un prompt sugerido para el siguiente chat.
+- **Al terminar**, se actualiza con: estado actual, siguiente tarea (con enlaces a los documentos que necesita, sin copiar su contenido) y un prompt sugerido para el siguiente chat.
+- **Los pendientes no van en el handoff:** se marcan como `[POR DEFINIR]` en el documento al que pertenecen, o en las *Decisiones derivadas* del ADR que los origina. Las decisiones ya están en los ADRs y en la historia de git.
 - Se recomienda **un chat nuevo por punto de control**, con el handoff como puente.
 - **Al cerrar un hito,** se escribe una retrospectiva en `docs/retros/AAAA-MM-DD-<hito>.md` con hallazgos numerados (`H1`, `H2`…) y su estado: aplicado o pendiente.
