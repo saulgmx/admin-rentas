@@ -34,9 +34,15 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 #### Servidor
 
 1. **Hetzner Cloud CX23:** 2 vCPU, 4 GB de RAM, 40 GB NVMe y 20 TB de tráfico, por €5.99 al mes sin impuestos (precio publicado el 2026-11-23). Ubicación: Núremberg (`nbg1`), o Helsinki (`hel1`) si no hay disponibilidad.
-2. **Plan B:** DigitalOcean Basic de 2 GB en EE. UU. ($12 USD al mes), si Hetzner deja de convenir. Mudarse es un contenedor y un respaldo de la base.
+2. **Plan B:** DigitalOcean Basic de 2 GB en EE. UU. ($12 USD al mes), si Hetzner deja de convenir. Mudarse es cambiar el módulo de OpenTofu del servidor, aplicar los mismos *playbooks* de Ansible, desplegar la misma imagen y restaurar el último respaldo. El DNS no cambia, porque el subdominio apunta al túnel y no a la IP del servidor.
 3. **Sistema operativo:** Ubuntu Server LTS vigente.
-4. **Preparación del servidor como código** (usuario, firewall, Docker, Tailscale, actualizaciones automáticas): **[POR DEFINIR]**. La candidata es un archivo `cloud-init` versionado en el repositorio.
+4. **Infraestructura como código** (X.2), en tres capas versionadas en el repositorio:
+   - **OpenTofu** declara los recursos en Hetzner (servidor y firewall) y en Cloudflare (túnel, su configuración de rutas y los buckets de R2). Lo específico de cada proveedor vive en su propio módulo, así que cambiar de proveedor solo toca el módulo del servidor.
+   - **`cloud-init` mínimo:** en el primer arranque crea el usuario de administración con su llave SSH y une el servidor a Tailscale con una llave de un solo uso.
+   - **Ansible**, por Tailscale, configura el resto: endurecimiento de SSH, `ufw`, actualizaciones automáticas, Docker, los archivos de secretos, el Compose de producción y los *timers* de respaldo. Los *playbooks* se pueden volver a aplicar sin recrear el servidor y no dependen del proveedor.
+   - **Estado de OpenTofu:** en un bucket de R2 **privado y separado** del de respaldos, con el *backend* S3 de OpenTofu (`use_lockfile` para el bloqueo, que R2 soporta con escrituras condicionales). El estado y los planes van **cifrados por OpenTofu** (AES-GCM, con una frase de paso guardada en el gestor de contraseñas del dueño), porque contienen secretos como los del túnel.
+   - OpenTofu y Ansible **se ejecutan desde el equipo del dueño**, no desde la CI. La infraestructura cambia poco, y así la CI no necesita credenciales de Hetzner ni de Cloudflare.
+   - Versiones: OpenTofu estable vigente al armar el esqueleto (1.13.x a la fecha) y proveedor de Cloudflare 5.x, fijados en el repositorio.
 
 #### Servicios en Docker Compose
 
@@ -51,7 +57,7 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 
 #### Acceso de los usuarios
 
-10. **Cloudflare Tunnel** en un subdominio de `saulgmx.com` (nombre: **[POR DEFINIR]**). El conector abre una conexión **de salida** hacia Cloudflare, así que el servidor no necesita ningún puerto abierto.
+10. **Cloudflare Tunnel** en **`<subdominio>.saulgmx.com`**. El conector abre una conexión **de salida** hacia Cloudflare, así que el servidor no necesita ningún puerto abierto.
     - El registro del subdominio queda en nube naranja; los demás registros del dominio no cambian.
     - Cloudflare da el HTTPS con su certificado comodín, así que el subdominio no aparece en los registros públicos de transparencia de certificados.
     - El plan gratuito permite subidas de hasta 100 MB por petición, de sobra para el límite de 10 MB por documento (IV.3).
@@ -69,7 +75,7 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 
 #### Entorno local
 
-17. **Aspire**: un proyecto *AppHost* levanta PostgreSQL y la API con un comando (`aspire run`), con el panel de logs, trazas y métricas (X.2). Versión mayor estable vigente al armar el esqueleto (17.x a la fecha). Antes de fijarla hay que confirmar su soporte para .NET 10.
+17. **Aspire**: un proyecto *AppHost* levanta PostgreSQL y la API con un comando (`aspire run`), con el panel de logs, trazas y métricas (X.2). Versión mayor estable vigente al armar el esqueleto (17.x a la fecha, que exige el SDK de .NET 10 para el *AppHost* e incluye la integración de PostgreSQL).
 18. Aspire **solo se usa en local**. El `docker-compose.yml` de producción no se genera desde Aspire.
 
 #### Despliegue
@@ -104,14 +110,17 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 
 #### Monitoreo y logs
 
-31. **UptimeRobot** (plan gratuito, cada 5 minutos) consulta la verificación de salud **por el camino público**: Cloudflare, túnel, API y base de datos. Así detecta también una caída del túnel. Su plan gratuito probablemente no incluye Telegram, así que alerta por correo; la constitución exige Telegram solo para trabajos y despliegues.
-32. **Healthchecks.io** (plan gratuito, hasta 20 trabajos) funciona como "interruptor de hombre muerto" para el respaldo diario y los trabajos programados: cada uno avisa al terminar, y si no avisa a tiempo salta la alerta por Telegram (X.5). Que su plan gratuito incluya Telegram está **por verificar**. Si no lo incluye, se usa un *webhook* que llama directamente a la API de bots de Telegram.
+31. **UptimeRobot** (plan gratuito, cada 5 minutos) consulta la verificación de salud **por el camino público**: Cloudflare, túnel, API y base de datos. Así detecta también una caída del túnel. Su plan gratuito no incluye Telegram ni *webhooks* (según su página, empiezan en planes de pago), así que alerta por **correo**; la constitución exige Telegram solo para trabajos y despliegues.
+32. **Healthchecks.io** (plan gratuito, hasta 20 trabajos) funciona como "interruptor de hombre muerto" para el respaldo diario y los trabajos programados: cada uno avisa al terminar, y si no avisa a tiempo salta la alerta por Telegram (X.5). Healthchecks.io tiene integración con Telegram, y su página de precios no limita las integraciones en el plan gratuito. Si al configurarlo resultara de pago, se usa un *webhook* que llama directamente a la API de bots de Telegram.
 33. **Logs** estructurados, guardados por Docker con rotación de tamaño, sin servicio externo. Se consultan por SSH.
 
 ## Alternativas consideradas
 
 | Alternativa | Por qué no se eligió |
 |---|---|
+| **`cloud-init` y un script con `hcloud`** | Lo mínimo, pero los recursos de Cloudflare quedarían manuales y cualquier cambio de configuración obligaría a recrear el servidor. Para un dueño con experiencia en Terraform y Ansible, el costo extra de la opción elegida es mínimo. |
+| **OpenTofu y `cloud-init`, sin Ansible** | La configuración del servidor solo se aplicaría en el primer arranque. |
+| **Terraform en lugar de OpenTofu** | Funcionaría igual, pero su licencia es BSL desde 2023 y no cifra el estado por sí mismo; la protección dependería solo de que el bucket sea privado. |
 | **Supabase Pro para PostgreSQL** | Desde $25 USD al mes, de 3 a 5 veces el costo del servidor completo. Sus respaldos no se pueden descargar y restaurarlos reemplaza la base, así que de todos modos haría falta `pg_dump` propio para probar restauraciones. No usaríamos sus extras (Auth, API REST automática), y su API REST podría exponer tablas fuera de la app. Wolverine exigiría conexión directa o en modo sesión, nunca en modo transacción. Su plan gratuito no tiene respaldos y se pausa por inactividad. |
 | **Plataforma administrada** (Railway, Render, Fly.io) | Menos mantenimiento, pero de $10 a $30 USD al mes con PostgreSQL administrado, para una carga mínima. |
 | **Nube grande** (Azure, AWS, GCP) | Requiere una réplica siempre activa y PostgreSQL administrado: $30–60 USD al mes o más, con más complejidad (IAM, redes). |
@@ -158,16 +167,19 @@ Costo aproximado: **unos €6 al mes** (más impuestos si aplican); todo lo dem�
 - **Latencia desde México a Europa** (unos 150–180 ms de ida y vuelta). No importa para este uso.
 - **Dos descripciones de la infraestructura:** el *AppHost* de Aspire y el Compose de producción pueden desalinearse. **Mitigación:** el Compose es pequeño y la CI lo valida.
 - Unos segundos sin servicio en cada despliegue.
+- **Si se pierde la frase de paso del estado de OpenTofu,** el estado es irrecuperable. **Mitigación:** guardarla en el gestor de contraseñas; en el peor caso, los recursos se pueden importar de nuevo a un estado nuevo.
 
 ## Decisiones derivadas
 
 - **Constitución:** marcar como decidido el hosting en *Restricciones tecnológicas*.
 - **ADR-0008:** trunk-based development con ramas cortas, e interruptores de funciones solo para cambios que modifican comportamiento visible.
 - **Esqueleto:** *AppHost* de Aspire, `docker-compose.yml` de producción, `Dockerfile`, modo "solo migrar", verificación de salud, flujos de CI, de despliegue y de prueba de restauración.
-- **[POR DEFINIR]:**
-  - preparación del servidor como código (candidata: `cloud-init`);
-  - nombre del subdominio.
-- **Por verificar al configurar:**
-  - Telegram en los planes gratuitos de Healthchecks.io y UptimeRobot;
-  - disponibilidad del CX23 en Núremberg;
-  - soporte de Aspire 17 para .NET 10.
+- **Infraestructura:** módulos de OpenTofu, `cloud-init` y *playbooks* de Ansible, con los pasos para crear el servidor documentados en el repositorio.
+
+## Listo para aceptar
+
+- [x] **Evidencia:** precios y límites verificados el 2026-11-23 en las páginas oficiales (Hetzner, DigitalOcean, Cloudflare Zero Trust y R2, Tailscale, UptimeRobot, Healthchecks.io, Aspire 17 y OpenTofu, incluidos el cifrado del estado y el bloqueo con R2). El proveedor de Cloudflare gestiona túneles y buckets. Pendiente solo de confirmar en la consola: disponibilidad del CX23 en Núremberg; si no hay, Helsinki, y si tampoco, el plan B.
+- [x] **Alternativas:** se compararon proveedores, formas de exponer la app, de administrar el servidor, de describir la infraestructura, de desplegar, de migrar, de respaldar y de monitorear.
+- [x] **Acuerdo:** el dueño eligió cada punto en la sesión del 2026-11-23.
+- [x] **Documentación:** no hay `[POR DEFINIR]`.
+- [x] **Implementación y revisión:** se implementa al armar el esqueleto. Se revisa en la retrospectiva del primer hito (costos reales, uso de memoria y si los planes gratuitos siguen alcanzando), o antes si un proveedor cambia precios o condiciones.

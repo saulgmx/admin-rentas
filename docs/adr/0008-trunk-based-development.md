@@ -84,6 +84,14 @@ Se usa **trunk-based development con ramas cortas**: cada rama vive **uno o dos 
 - **Las APIs incompletas existen en producción** aunque no se vean en la interfaz. Solo las pueden usar usuarios autenticados, pero hay que cuidar que no dejen datos inconsistentes si alguien las llama.
 - **Los interruptores son deuda** si no se borran a tiempo. **Mitigación:** el `design.md` del cambio dice cuándo se quita, y el control de cierre lo revisa.
 
+## Listo para aceptar
+
+- [x] **Evidencia:** trunk-based development con ramas cortas es una práctica establecida. Las piezas que usa son funciones estándar de GitHub (protección de rama, exigir que la rama esté al día, habilitar solo la integración con *merge*) y una librería oficial de Microsoft (`Microsoft.FeatureManagement`).
+- [x] **Alternativas:** se compararon commits directos, ramas largas, GitFlow y tres formas de integrar (*squash*, *rebase*, y *rebase* + *squash*), además de tres formas de esconder lo incompleto.
+- [x] **Acuerdo:** el dueño eligió cada punto durante la sesión del 2026-11-23.
+- [x] **Documentación:** no hay `[POR DEFINIR]`. Las reglas operativas están también en el flujo de especificaciones.
+- [x] **Implementación y revisión:** la protección de `main` se configura al armar el esqueleto, y las reglas aplican desde su primera rama. Se revisa en la retrospectiva del primer hito (Gobernanza 6), sobre todo si las ramas de uno o dos días resultaron realistas y si hizo falta algún interruptor.
+
 ## Decisiones derivadas
 
 - **Flujo de especificaciones:** actualizar *Puntos de control, ramas y commits* con la duración de las ramas, la protección de `main` y la forma de esconder lo incompleto, y la plantilla de `design.md` con la sección correspondiente.

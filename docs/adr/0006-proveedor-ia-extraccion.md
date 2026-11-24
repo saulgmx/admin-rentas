@@ -1,6 +1,6 @@
 # ADR-0006: Extracción de recibos con Claude a través de `Microsoft.Extensions.AI`
 
-- **Estado:** Aceptado
+- **Estado:** Propuesto
 - **Fecha:** 2026-11-23
 - **Principios relacionados:** IV (la IA sugiere y una persona confirma), VIII (seguridad y privacidad), IX (integraciones externas)
 
@@ -45,15 +45,25 @@ La extracción se hace con un **modelo de lenguaje con visión de Claude** (Anth
 6. **Reintento con modelo mayor:** si la extracción con Haiku sale con advertencias o falla las validaciones propias, se repite una vez con Sonnet. Se guarda el modelo que produjo el resultado final y si hubo reintento.
 7. **Validaciones propias:** reglas deterministas en el adaptador, independientes del proveedor: monto mayor que cero, periodo con inicio anterior al fin, fecha límite coherente con el periodo y formatos esperados. Cada regla que falla agrega una advertencia.
 8. **Verificación contra el texto del documento, solo en PDFs con texto:** se extrae el texto del PDF con una librería .NET sin binarios nativos (candidata: PdfPig) y se comprueba que el monto, el número de cuenta y la fecha límite extraídos **aparezcan literalmente** en ese texto. Si un valor no aparece, se agrega la advertencia "valor no encontrado en el documento". Las fotos y los PDFs escaneados (sin texto) no se verifican así en esta versión.
-9. **Cálculo de la confianza:** se combina a partir de las advertencias del modelo y de las validaciones (puntos 5, 7 y 8). Cómo se traduce a `Confidence` y qué cuenta como "baja confianza" para el Principio IV.1: **[POR DEFINIR]**.
-10. **Tipos de archivo:** se aceptan PDF, JPEG, PNG y WebP; el resto se rechaza al recibir el documento (VIII.5). Si las fotos HEIC del iPhone se rechazan o se convierten a JPEG, y si Claude acepta HEIC directamente (no verificado): **[POR DEFINIR]**. Límites de tamaño: **[POR DEFINIR]**.
-11. **Privacidad:**
+9. **Cálculo de la confianza:** se combina a partir de las advertencias del modelo y de las validaciones (puntos 5, 7 y 8). Cómo se traduce a `Confidence` y qué cuenta como "baja confianza" para el Principio IV.1 es **comportamiento**, no arquitectura: lo define, con sus escenarios, el cambio de `Ingestion` que implemente la extracción.
+10. **Tipos de archivo y tamaño:**
+    - Claude acepta imágenes JPEG, PNG, GIF y WebP, de hasta **10 MB ya codificadas en base64** (unos 7.5 MB de archivo), y **no acepta HEIC**. Las imágenes grandes las reduce de todos modos antes de procesarlas (documentación de Anthropic, consultada el 2026-11-23).
+    - **El límite de cada documento es el de la constitución: 10 MB** (IV.3). Lo que lo exceda se rechaza al recibirlo.
+    - Se aceptan PDF, JPEG, PNG y WebP; el resto se rechaza al recibir el documento (VIII.5).
+11. **Normalización de fotos, en dos lugares:**
+    - **La PWA** reduce cada foto antes de subirla y la convierte a JPEG, incluidas las HEIC del iPhone, que el navegador sabe leer. Así el administrador sube alrededor de 1 MB en lugar de 5 a 10 MB.
+    - **El servidor valida siempre** y reduce cualquier imagen que todavía exceda el tamaño objetivo, como los adjuntos de recibos reenviados por correo, que no pasan por la PWA. Un HEIC que llegue por correo se rechaza con un mensaje claro que pide reenviarlo como JPEG o PDF; así el servidor no necesita librerías nativas para HEIC.
+    - **Tamaño objetivo:** lado largo de **2,576 px**, en JPEG con calidad de 85 %. Es el máximo que aprovechan los modelos de alta resolución. Son valores iniciales y configurables.
+    - **El original temporal (IV.3) es la versión normalizada,** que es la que analiza la IA y la que se compara al confirmar.
+    - Los PDFs no se modifican.
+    - La librería de imágenes del servidor se elige en el `design.md` del cambio de `Ingestion`.
+12. **Privacidad:**
     - el documento viaja **dentro de la petición** (base64); no se usa la API de archivos de Anthropic, que lo guardaría del lado del proveedor;
     - la telemetría y los logs de `Microsoft.Extensions.AI` y del SDK se configuran **sin contenido** de mensajes ni de respuestas;
     - la llave `ANTHROPIC_API_KEY` se inyecta como secreto (VIII.4).
-12. **Fallas:** un error del proveedor, una respuesta que no cumple el esquema o una negativa del modelo se tratan como extracción fallida: se publica `ExtractionFailed` y queda la captura manual (IV.6). Los reintentos por fallas transitorias siguen el Principio IX.3.
-13. **Implementación falsa:** para pruebas y desarrollo local hay un `IDocumentExtractor` falso que no llama a ningún proveedor (IX.2). El adaptador real se prueba con un `IChatClient` falso que devuelve respuestas preparadas.
-14. **Versión:** paquete `Anthropic`, versión mayor estable vigente al armar el esqueleto (13.x a la fecha), fijada en `Directory.Packages.props`. No se usan versiones preliminares.
+13. **Fallas:** un error del proveedor, una respuesta que no cumple el esquema o una negativa del modelo se tratan como extracción fallida: se publica `ExtractionFailed` y queda la captura manual (IV.6). Los reintentos por fallas transitorias siguen el Principio IX.3.
+14. **Implementación falsa:** para pruebas y desarrollo local hay un `IDocumentExtractor` falso que no llama a ningún proveedor (IX.2). El adaptador real se prueba con un `IChatClient` falso que devuelve respuestas preparadas.
+15. **Versión:** paquete `Anthropic`, versión mayor estable vigente al armar el esqueleto (13.x a la fecha), fijada en `Directory.Packages.props`. No se usan versiones preliminares.
 
 ### Validación pendiente
 
@@ -93,11 +103,18 @@ La elección de Claude sobre Gemini se tomó con información pública (precio, 
 - **Un proyecto más por cada módulo que tenga adaptadores externos** (`.Adapters`), además de la implementación y `.Contracts`.
 - La elección no se ha validado con recibos reales (ver *Validación pendiente*).
 
+## Listo para aceptar
+
+- [ ] **Evidencia:** la documentación de Anthropic y el código del SDK confirman el soporte de PDF, imágenes y salida estructurada, pero **falta medir la precisión con recibos reales** (ver *Validación pendiente*). Este ADR se acepta cuando esa prueba termine, antes del cambio de `Ingestion` que implemente la extracción.
+- [x] **Alternativas:** Gemini, OpenAI, OCR en la nube, modelo local, Tesseract (como lector principal y como verificador), SDK directo, adaptador dentro del módulo y Microsoft Agent Framework.
+- [x] **Acuerdo:** el dueño eligió el proveedor, la capa, la ubicación del adaptador, la verificación de PDFs y la normalización de fotos.
+- [x] **Documentación:** no hay `[POR DEFINIR]`. La confianza y la librería de imágenes están asignadas al cambio de `Ingestion`, porque son comportamiento y detalle de implementación.
+- [x] **Implementación y revisión:** se implementa en el cambio de `Ingestion` que agregue la extracción. Se revisa con los resultados de la prueba comparativa y cuando Anthropic retire o reemplace los modelos configurados.
+
 ## Decisiones derivadas
 
 - **Constitución:** marcar como decidido el proveedor de IA en *Restricciones tecnológicas*.
 - **Mapa de módulos:** reglas de dependencia 7 (solo `Host` referencia los proyectos `.Adapters`) y 8 (solo `AdminRentas.Ingestion.Adapters` y `Host` usan `Anthropic` y `Microsoft.Extensions.AI`), convención de proyectos `.Adapters` y nota en el módulo `Ingestion`.
 - **Prueba comparativa** Claude contra Gemini con unos 10 recibos reales.
-- **Cálculo de la confianza** y umbral de "baja confianza": **[POR DEFINIR]**, en la spec de `Ingestion`.
-- **Fotos HEIC** y **límites de tamaño**: **[POR DEFINIR]**.
+- **Cambio de `Ingestion` que implemente la extracción:** define el cálculo de la confianza y qué cuenta como "baja confianza", con sus escenarios, y elige la librería de imágenes del servidor.
 - **Tesseract para verificar fotos:** evolución prevista, sujeta a un ADR nuevo.

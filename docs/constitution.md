@@ -1,6 +1,6 @@
 # Constitución del proyecto — Administrador de Rentas
 
-> **Versión:** 0.10.4 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
+> **Versión:** 0.11.0 (borrador) · **Fecha:** 2026-11-23 · **Estado:** En revisión
 >
 > Este documento define las reglas que no se negocian en el proyecto. Toda especificación, plan, tarea o cambio de código debe cumplirlas. Si una funcionalidad necesita romper una regla, primero se modifica esta constitución (ver *Gobernanza*).
 
@@ -146,7 +146,7 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 | Herramienta de especificaciones | OpenSpec con controles de calidad propios ([ADR-0003](adr/0003-especificaciones-openspec.md)) | ✅ Decidido |
 | Idioma del código | Inglés; documentos en español, con glosario oficial ([ADR-0004](adr/0004-idioma-del-codigo.md)) | ✅ Decidido |
 | Bus de eventos interno | En el proceso con Wolverine; *outbox* e *inbox* durables en PostgreSQL ([ADR-0005](adr/0005-bus-de-eventos-wolverine.md)) | ✅ Decidido |
-| Proveedor de IA para extracción | Claude (Haiku 5.5, con reintento en Sonnet 5.5) a través de `Microsoft.Extensions.AI`, detrás de `IDocumentExtractor` ([ADR-0006](adr/0006-proveedor-ia-extraccion.md)) | ✅ Decidido |
+| Proveedor de IA para extracción | Claude (Haiku 5.5, con reintento en Sonnet 5.5) a través de `Microsoft.Extensions.AI`, detrás de `IDocumentExtractor` ([ADR-0006](adr/0006-proveedor-ia-extraccion.md)) | 📝 Propuesto |
 | Hosting | VPS de Hetzner con Docker Compose, acceso por Cloudflare Tunnel y administración por Tailscale; entorno local con Aspire ([ADR-0007](adr/0007-hosting-y-entorno-local.md)) | ✅ Decidido |
 
 ---
@@ -158,6 +158,8 @@ Mantener sincronizados al **dueño** (a distancia) y al **administrador** (en la
 2. Cada cambio a la constitución se hace mediante un **ADR** (*Architecture Decision Record*) en `docs/adr/`, que explica el contexto, la decisión y sus consecuencias.
    - Un **ADR aceptado no se edita**: si la decisión cambia, se escribe un ADR nuevo que lo reemplaza, y del anterior solo se actualiza su estado ("Reemplazado por ADR-XXXX").
    - Un ADR recibe su número **al crearse**, no antes.
+   - Un ADR se crea como **Propuesto** y solo pasa a **Aceptado** cuando no tiene ningún `[POR DEFINIR]` y cumple la lista *Listo para aceptar* de la plantilla (criterios ECADR: evidencia, alternativas, acuerdo, documentación y plan de implementación y revisión). Lo que no es una decisión de arquitectura (valores de configuración, comportamiento con escenarios) se mueve a su documento con un enlace, en lugar de quedar abierto en el ADR.
+   - Mientras un ADR es **Propuesto** se puede editar libremente.
 3. **Versionado semántico** de este documento:
    - **MAYOR:** se elimina o redefine un principio.
    - **MENOR:** se agrega un principio o se amplía uno existente.
